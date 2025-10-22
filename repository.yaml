@@ -1,0 +1,10 @@
+# repository.yaml
+# Цей файл повинен знаходитись у корені репозиторію (https://github.com/ardeus-ua/ha-addons/)
+
+name: Battery Status Monitors by Ardeus-UA
+maintainer: Ardeus-UA
+
+# Список аддонів, що містяться в цьому репозиторії. 
+# Ключами є імена папок, в яких знаходяться файли аддонів (slug).
+addons:
+  - local_battery_viewer_tunnel
