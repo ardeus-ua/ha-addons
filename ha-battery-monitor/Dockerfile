@@ -21,9 +21,9 @@ RUN wget -q -O /usr/local/bin/cloudflared "https://github.com/cloudflare/cloudfl
 
 # 3. Копіювання файлів
 # Копіюємо Python-код із підпапки battery_server
-COPY battery_server/app.py /app/app.py 
+COPY app.py /app/app.py 
 # Копіюємо конфіг cloudflared
-COPY battery_server/cloudflared.yml /etc/cloudflared/config.yml 
+COPY cloudflared.yml /etc/cloudflared/config.yml 
 
 # Порт Flask-сервера
 EXPOSE 8099
