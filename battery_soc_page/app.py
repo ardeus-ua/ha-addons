@@ -60,11 +60,11 @@ def index():
                 text-align: center;
                 color: #333;
             }
-            .grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
+            .battery-row {
+                display: flex;
+                justify-content: center;
                 gap: 20px;
-                max-width: 800px;
+                max-width: 1000px;
                 margin: 0 auto;
             }
             .battery-container {
@@ -72,54 +72,57 @@ def index():
             }
             .battery {
                 position: relative;
-                width: 60px;
-                height: 100px;
+                width: 150px;
+                height: 50px;
                 border: 2px solid #333;
                 border-radius: 5px;
-                margin: 0 auto;
                 background: #e0e0e0;
                 overflow: hidden;
             }
-            .battery-cap {
-                position: absolute;
-                top: -6px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 20px;
-                height: 6px;
-                background: #333;
-                border-radius: 2px;
+            .battery-segments {
+                display: flex;
+                height: 100%;
             }
-            .battery-fill {
-                position: absolute;
-                bottom: 0;
-                width: 100%;
-                transition: height 0.3s ease;
+            .segment {
+                flex: 1;
+                border-right: 1px solid #fff;
             }
-            .battery-label {
-                margin-top: 10px;
-                font-size: 14px;
-                color: #333;
+            .segment:last-child {
+                border-right: none;
             }
             .battery-percentage {
-                margin-top: 5px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 font-size: 16px;
                 font-weight: bold;
+                color: #333;
+                text-shadow: 1px 1px 1px #fff;
+                z-index: 1;
+            }
+            .battery-label {
+                margin-top: 5px;
+                font-size: 14px;
                 color: #333;
             }
         </style>
     </head>
     <body>
         <h1>Стан Акумуляторів</h1>
-        <div class="grid">
+        <div class="battery-row">
             {% for sn, name in sensors.items() %}
             <div class="battery-container">
                 <div class="battery">
-                    <div class="battery-cap"></div>
-                    <div class="battery-fill" style="height: {{ data[sn] if data[sn] is not none else 0 }}%; background: {{ '#00cc00' if (data[sn] if data[sn] is not none else 0) >= 50 else ('#ffcc00' if (data[sn] if data[sn] is not none else 0) >= 20 else '#cc0000') }};"></div>
+                    <div class="battery-percentage">{{ data[sn] if data[sn] is not none else 'N/A' }}%</div>
+                    <div class="battery-segments">
+                        {% set soc = data[sn] if data[sn] is not none else 0 %}
+                        {% for i in range(10) %}
+                        <div class="segment" style="background: {{ '#00cc00' if soc >= 50 else ('#ffcc00' if soc >= 20 else '#cc0000') if (i * 10) < soc else '#e0e0e0' }};"></div>
+                        {% endfor %}
+                    </div>
                 </div>
                 <p class="battery-label">{{ name }}</p>
-                <p class="battery-percentage">{{ data[sn] if data[sn] is not none else 'N/A' }}%</p>
             </div>
             {% endfor %}
         </div>
