@@ -43,68 +43,77 @@ def update_battery_soc():
 
 @app.route('/', methods=['GET'])
 def index():
-    # HTML template with Chart.js gauges
     html = """
     <!DOCTYPE html>
     <html lang="uk">
     <head>
         <meta charset="UTF-8">
         <title>Дашборд Акумуляторів</title>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
-            body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-            .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-            .gauge { width: 200px; height: 200px; margin: auto; }
-            h1 { text-align: center; }
+            body {
+                font-family: Arial, sans-serif;
+                background: #f4f4f4;
+                padding: 20px;
+                margin: 0;
+            }
+            h1 {
+                text-align: center;
+                color: #333;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            .battery-container {
+                text-align: center;
+            }
+            .battery {
+                position: relative;
+                width: 60px;
+                height: 100px;
+                border: 2px solid #333;
+                border-radius: 5px;
+                margin: 0 auto;
+                background: #e0e0e0;
+                overflow: hidden;
+            }
+            .battery-cap {
+                position: absolute;
+                top: -6px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 20px;
+                height: 6px;
+                background: #333;
+                border-radius: 2px;
+            }
+            .battery-fill {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                transition: height 0.3s ease;
+            }
+            .battery-label {
+                margin-top: 10px;
+                font-size: 14px;
+                color: #333;
+            }
+            .battery-percentage {
+                margin-top: 5px;
+                font-size: 16px;
+                font-weight: bold;
+                color: #333;
+            }
         </style>
     </head>
     <body>
         <h1>Стан Акумуляторів</h1>
         <div class="grid">
             {% for sn, name in sensors.items() %}
-            <div>
-                <canvas id="gauge_{{ sn }}" class="gauge"></canvas>
-                <p style="text-align: center;">{{ name }}</p>
-            </div>
-            {% endfor %}
-        </div>
-        <script>
-            const sensors = {{ sensors | tojson }};
-            const data = {{ data | tojson }};
-            Object.keys(sensors).forEach(sn => {
-                const ctx = document.getElementById('gauge_' + sn).getContext('2d');
-                const soc = data[sn] !== null ? data[sn] : 0;
-                const color = soc >= 50 ? '#00cc00' : (soc >= 20 ? '#ffcc00' : '#cc0000');
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [soc, 100 - soc],
-                            backgroundColor: [color, '#e0e0e0'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        circumference: 180,
-                        rotation: -90,
-                        cutout: '70%',
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: false },
-                            title: {
-                                display: true,
-                                text: (data[sn] !== null ? data[sn] + '%' : 'N/A'),
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-    </body>
-    </html>
-    """
-    return render_template_string(html, sensors=SENSORS, data=data)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+            <div class="battery-container">
+                <div class="battery">
+                    <div class="battery-cap"></div>
+                    <div class="battery-fill" style="height: {{ data[sn] if data[sn] is not none else 0 }}%; background
