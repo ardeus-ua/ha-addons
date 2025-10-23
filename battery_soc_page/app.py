@@ -53,58 +53,56 @@ def index():
     <html lang="uk">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Дашборд Акумуляторів</title>
         <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
             body {
                 font-family: 'Roboto', sans-serif;
-                background: #000000 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJElEQVQIW2P8DwQMQwMDAz/ywIIGAwCDmBrAuQi+v8QzAAMAPr0AFm2y/7QAAAABJRU5ErkJggg==') repeat;
-                margin: 0;
+                background-color: #ffffff;
+                color: #212121;
+                min-height: 100vh;
                 padding: 20px;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                color: #e0e0e0;
-                overflow: hidden;
+                line-height: 1.5;
             }
             h1 {
-                font-size: 28px;
-                font-weight: bold;
+                font-size: 2.5rem;
+                font-weight: 500;
                 text-align: center;
-                text-transform: uppercase;
-                letter-spacing: 3px;
-                margin-bottom: 30px;
-                text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
-                animation: fadeIn 1s ease-in;
+                margin-bottom: 2rem;
+                color: #6200ee;
             }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            .battery-row {
-                display: flex;
-                justify-content: center;
-                gap: 40px;
+            .container {
                 max-width: 1200px;
-                flex-wrap: wrap;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.5rem;
+                padding: 0 1rem;
             }
-            .battery-container {
+            .battery-card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 1rem;
                 text-align: center;
-                perspective: 1000px;
+                transition: box-shadow 0.3s ease;
+            }
+            .battery-card:hover {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.2);
             }
             .battery {
                 position: relative;
-                width: 250px;
-                height: 80px;
-                border: 4px solid #00ffff;
-                border-radius: 15px;
-                background: #111111;
+                width: 100%;
+                height: 60px;
+                border: 2px solid #757575;
+                border-radius: 4px;
+                background: #f5f5f5;
                 overflow: hidden;
-                box-shadow: 0 0 15px #00ffff, inset 0 0 10px #000000;
-                transition: transform 0.3s;
-            }
-            .battery-container:hover .battery {
-                transform: rotateX(5deg) scale(1.05);
             }
             .battery-segments {
                 display: flex;
@@ -113,7 +111,7 @@ def index():
             }
             .segment {
                 flex: 1;
-                border-right: 2px solid #333;
+                border-right: 1px solid #e0e0e0;
             }
             .segment:last-child {
                 border-right: none;
@@ -123,40 +121,51 @@ def index():
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                font-size: 24px;
-                font-weight: bold;
-                color: #ffffff;
-                text-shadow: 0 0 5px #000000, 0 0 10px #00ff00;
+                font-size: 1.2rem;
+                font-weight: 500;
+                color: #212121;
                 z-index: 1;
-                transition: color 0.3s;
-            }
-            .battery-container:hover .battery-percentage {
-                color: #00ff00;
             }
             .battery-label {
-                margin-top: 15px;
-                font-size: 18px;
+                margin-top: 0.5rem;
+                font-size: 1rem;
+                color: #757575;
                 text-transform: uppercase;
-                letter-spacing: 2px;
-                text-shadow: 0 0 5px #00ff00;
+            }
+            @media (max-width: 768px) {
+                h1 {
+                    font-size: 1.8rem;
+                }
+                .container {
+                    grid-template-columns: 1fr;
+                }
+                .battery {
+                    height: 50px;
+                }
+                .battery-percentage {
+                    font-size: 1rem;
+                }
+                .battery-label {
+                    font-size: 0.9rem;
+                }
             }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
         <script>
             const socket = io();
             socket.on('update_soc', (data) => {
-                const containers = document.querySelectorAll('.battery-container');
-                containers.forEach(container => {
-                    const sn = container.dataset.sn;
+                const cards = document.querySelectorAll('.battery-card');
+                cards.forEach(card => {
+                    const sn = card.dataset.sn;
                     const soc = data[sn] !== null ? data[sn] : 'N/A';
-                    const percentage = container.querySelector('.battery-percentage');
-                    const segments = container.querySelector('.battery-segments');
+                    const percentage = card.querySelector('.battery-percentage');
+                    const segments = card.querySelector('.battery-segments');
                     percentage.textContent = `${soc}%`;
                     segments.innerHTML = '';
                     for (let i = 0; i < 10; i++) {
                         const segment = document.createElement('div');
                         segment.className = 'segment';
-                        segment.style.background = (i * 10) < soc ? (soc >= 50 ? '#00ff00' : (soc >= 20 ? '#ffff00' : '#ff0000')) : '#111111';
+                        segment.style.background = (i * 10) < soc ? (soc >= 50 ? '#4caf50' : (soc >= 20 ? '#ffca28' : '#f44336')) : '#f5f5f5';
                         segments.appendChild(segment);
                     }
                 });
@@ -165,15 +174,15 @@ def index():
     </head>
     <body>
         <h1>Дашборд Акумуляторів</h1>
-        <div class="battery-row">
+        <div class="container">
             {% for sn, name in sensors.items() %}
-            <div class="battery-container" data-sn="{{ sn }}">
+            <div class="battery-card" data-sn="{{ sn }}">
                 <div class="battery">
                     <div class="battery-percentage">{{ data[sn] if data[sn] is not none else 'N/A' }}%</div>
                     <div class="battery-segments">
                         {% set soc = data[sn] if data[sn] is not none else 0 %}
                         {% for i in range(10) %}
-                        <div class="segment" style="background: {{ '#00ff00' if soc >= 50 else ('#ffff00' if soc >= 20 else '#ff0000') if (i * 10) < soc else '#111111' }};"></div>
+                        <div class="segment" style="background: {{ '#4caf50' if soc >= 50 else ('#ffca28' if soc >= 20 else '#f44336') if (i * 10) < soc else '#f5f5f5' }};"></div>
                         {% endfor %}
                     </div>
                 </div>
