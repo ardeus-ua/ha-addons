@@ -1,5 +1,5 @@
 name: Battery SOC Page Add-on
-version: "1.0.7"
+version: "1.0.8"
 slug: battery_soc_page
 description: Serves a web page with battery SOC data via Cloudflare Tunnel and updates via JSON POST
 url: "https://example.com"
