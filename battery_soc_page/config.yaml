@@ -16,6 +16,6 @@ ports:
 ports_description:
   5000/tcp: Local web server (for testing; main access via Cloudflare domain)
 options:
-  tunnel_id: ""
+  tunnel_token: ""
 schema:
   tunnel_token: str
