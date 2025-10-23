@@ -1,10 +1,20 @@
 FROM python:3.9-slim
 
-# Install cloudflared
-RUN apt-get update && apt-get install -y wget \
-    && wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O /usr/local/bin/cloudflared \
-    && chmod +x /usr/local/bin/cloudflared \
+# Установка зависимостей для сети и cloudflared
+RUN apt-get update && apt-get install -y \
+    wget \
+    ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Установка cloudflared (поддержка multi-arch)
+RUN case $(uname -m) in \
+    x86_64) ARCH="amd64" ;; \
+    aarch64|arm64) ARCH="arm64" ;; \
+    armv7l) ARCH="arm" ;; \
+    *) ARCH="amd64" ;; \
+    esac && \
+    wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH} -O /usr/local/bin/cloudflared && \
+    chmod +x /usr/local/bin/cloudflared
 
 WORKDIR /app
 
@@ -13,5 +23,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 COPY run.sh .
+
+# Делаем run.sh исполняемым
+RUN chmod +x run.sh
 
 CMD ["/bin/sh", "run.sh"]
