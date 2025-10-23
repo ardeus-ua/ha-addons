@@ -51,41 +51,53 @@ def index():
         <title>Дашборд Акумуляторів</title>
         <style>
             body {
-                font-family: Arial, sans-serif;
-                background: #f4f4f4;
-                padding: 20px;
+                font-family: 'Roboto', sans-serif;
+                background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
                 margin: 0;
+                padding: 20px;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                color: #d3d3d3;
             }
             h1 {
+                font-size: 24px;
+                font-weight: bold;
                 text-align: center;
-                color: #333;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-bottom: 20px;
+                text-shadow: 0 0 5px #00ff00;
             }
             .battery-row {
                 display: flex;
                 justify-content: center;
-                gap: 20px;
+                gap: 30px;
                 max-width: 1000px;
-                margin: 0 auto;
+                flex-wrap: wrap;
             }
             .battery-container {
                 text-align: center;
             }
             .battery {
                 position: relative;
-                width: 150px;
-                height: 50px;
-                border: 2px solid #333;
-                border-radius: 5px;
-                background: #e0e0e0;
+                width: 200px;
+                height: 60px;
+                border: 3px solid #00ffff;
+                border-radius: 10px;
+                background: #333333;
                 overflow: hidden;
+                box-shadow: 0 0 10px #00ffff;
             }
             .battery-segments {
                 display: flex;
                 height: 100%;
+                transition: all 0.3s ease;
             }
             .segment {
                 flex: 1;
-                border-right: 1px solid #fff;
+                border-right: 1px solid #555;
             }
             .segment:last-child {
                 border-right: none;
@@ -95,16 +107,17 @@ def index():
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                font-size: 16px;
+                font-size: 20px;
                 font-weight: bold;
-                color: #333;
-                text-shadow: 1px 1px 1px #fff;
+                color: #ffffff;
+                text-shadow: 0 0 3px #000000;
                 z-index: 1;
             }
             .battery-label {
-                margin-top: 5px;
-                font-size: 14px;
-                color: #333;
+                margin-top: 10px;
+                font-size: 16px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
             }
         </style>
     </head>
@@ -118,7 +131,7 @@ def index():
                     <div class="battery-segments">
                         {% set soc = data[sn] if data[sn] is not none else 0 %}
                         {% for i in range(10) %}
-                        <div class="segment" style="background: {{ '#00cc00' if soc >= 50 else ('#ffcc00' if soc >= 20 else '#cc0000') if (i * 10) < soc else '#e0e0e0' }};"></div>
+                        <div class="segment" style="background: {{ '#00ff00' if soc >= 50 else ('#ffff00' if soc >= 20 else '#ff0000') if (i * 10) < soc else '#333333' }};"></div>
                         {% endfor %}
                     </div>
                 </div>
