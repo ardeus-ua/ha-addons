@@ -52,62 +52,97 @@ def index():
     <!DOCTYPE html>
     <html lang="uk">
     <head>
-        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Дашборд Акумуляторів</title>
+        <title>Індикатори Енергосистеми</title>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
+            :root {
+                --primary-color: #007bff;
+                --success-color: #5cb85c;
+                --warning-color: #f0ad4e;
+                --danger-color: #d9534f;
+                --bg-color: #f8f9fa;
+                --card-bg: #ffffff;
+                --text-color: #333;
+            }
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                justify-content: flex-start; 
+                min-height: 100vh; 
+                margin: 0; 
+                padding: 20px 10px;
+                background-color: var(--bg-color); 
+                color: var(--text-color);
+            }
+            h1 { 
+                margin-bottom: 30px; 
+                font-size: 1.2em;
+                text-align: center;
+            }
+            .battery-grid { 
+                display: flex; 
+                gap: 20px; 
+                flex-wrap: wrap; 
+                justify-content: center;
+                width: 100%;
+                max-width: 1200px;
+            }
+            .indicator-unit { 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                padding: 20px; 
+                border: 1px solid #e0e0e0; 
+                border-radius: 12px; 
+                background: var(--card-bg); 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+                transition: transform 0.2s;
+                width: calc(20% - 20px); 
+                min-width: 180px;
                 box-sizing: border-box;
             }
-            body {
-                font-family: 'Roboto', sans-serif;
-                background-color: #ffffff;
-                color: #212121;
-                min-height: 100vh;
-                padding: 20px;
-                line-height: 1.5;
+            .indicator-unit:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 15px rgba(0,0,0,0.1);
             }
-            h1 {
-                font-size: 2.5rem;
-                font-weight: 500;
-                text-align: center;
-                margin-bottom: 2rem;
-                color: #6200ee;
+            .system-title {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+                font-weight: 600;
             }
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1.5rem;
-                padding: 0 1rem;
-            }
-            .battery-card {
-                background: #ffffff;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
-                padding: 1rem;
-                text-align: center;
-                transition: box-shadow 0.3s ease;
-            }
-            .battery-card:hover {
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.2);
-            }
-            .battery {
-                position: relative;
-                width: 100%;
-                height: 60px;
-                border: 2px solid #757575;
-                border-radius: 4px;
-                background: #f5f5f5;
+            .battery-container { 
+                width: 100px; 
+                height: 60px; 
+                border: 3px solid var(--text-color); 
+                border-radius: 8px; 
+                position: relative; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                margin-top: 10px; 
+                background-color: #f0f0f0; 
                 overflow: hidden;
+            }
+            .battery-container::after { 
+                content: ''; 
+                position: absolute; 
+                right: -8px; 
+                top: 50%; 
+                transform: translateY(-50%); 
+                width: 6px; 
+                height: 15px; 
+                background-color: var(--text-color); 
+                border-radius: 0 3px 3px 0; 
             }
             .battery-segments {
                 display: flex;
                 height: 100%;
-                transition: all 0.5s ease;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
             }
             .segment {
                 flex: 1;
@@ -116,37 +151,39 @@ def index():
             .segment:last-child {
                 border-right: none;
             }
-            .battery-percentage {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 1.2rem;
-                font-weight: 500;
-                color: #212121;
+            .battery-level { 
+                font-size: 2em;
+                font-weight: bold; 
+                color: var(--text-color); 
+                transition: color 0.3s;
+                position: relative;
                 z-index: 1;
             }
-            .battery-label {
-                margin-top: 0.5rem;
-                font-size: 1rem;
-                color: #757575;
-                text-transform: uppercase;
+            .timestamp-text { 
+                margin-top: 15px; 
+                font-size: 0.8em; 
+                color: #777; 
+                text-align: center; 
+            }
+            /* Кольорові класи для сегментів */
+            .color-success { background-color: var(--success-color) !important; }
+            .color-warning { background-color: var(--warning-color) !important; }
+            .color-danger { background-color: var(--danger-color) !important; }
+            /* Адаптивність */
+            @media (max-width: 1024px) {
+                .indicator-unit {
+                    width: calc(33.33% - 20px);
+                }
             }
             @media (max-width: 768px) {
-                h1 {
-                    font-size: 1.8rem;
+                .indicator-unit {
+                    width: calc(50% - 15px);
                 }
-                .container {
-                    grid-template-columns: 1fr;
-                }
-                .battery {
-                    height: 50px;
-                }
-                .battery-percentage {
-                    font-size: 1rem;
-                }
-                .battery-label {
-                    font-size: 0.9rem;
+            }
+            @media (max-width: 500px) {
+                .indicator-unit {
+                    width: 100%;
+                    max-width: 300px;
                 }
             }
         </style>
@@ -154,18 +191,20 @@ def index():
         <script>
             const socket = io();
             socket.on('update_soc', (data) => {
-                const cards = document.querySelectorAll('.battery-card');
-                cards.forEach(card => {
-                    const sn = card.dataset.sn;
+                const units = document.querySelectorAll('.indicator-unit');
+                units.forEach(unit => {
+                    const sn = unit.dataset.sn;
                     const soc = data[sn] !== null ? data[sn] : 'N/A';
-                    const percentage = card.querySelector('.battery-percentage');
-                    const segments = card.querySelector('.battery-segments');
-                    percentage.textContent = `${soc}%`;
+                    const level = unit.querySelector('.battery-level');
+                    const segments = unit.querySelector('.battery-segments');
+                    level.textContent = `${soc}%`;
+                    level.className = 'battery-level ' + (soc >= 50 ? 'color-success' : (soc >= 20 ? 'color-warning' : 'color-danger'));
                     segments.innerHTML = '';
                     for (let i = 0; i < 10; i++) {
                         const segment = document.createElement('div');
                         segment.className = 'segment';
-                        segment.style.background = (i * 10) < soc ? (soc >= 50 ? '#4caf50' : (soc >= 20 ? '#ffca28' : '#f44336')) : '#f5f5f5';
+                        segment.classList.add(soc >= 50 ? 'color-success' : (soc >= 20 ? 'color-warning' : 'color-danger'));
+                        if ((i * 10) >= soc) segment.classList.remove('color-success', 'color-warning', 'color-danger');
                         segments.appendChild(segment);
                     }
                 });
@@ -173,20 +212,21 @@ def index():
         </script>
     </head>
     <body>
-        <h1>Дашборд Акумуляторів</h1>
-        <div class="container">
+        <h1>Індикатори Енергосистеми</h1>
+        <div class="battery-grid">
             {% for sn, name in sensors.items() %}
-            <div class="battery-card" data-sn="{{ sn }}">
-                <div class="battery">
-                    <div class="battery-percentage">{{ data[sn] if data[sn] is not none else 'N/A' }}%</div>
+            <div class="indicator-unit" data-sn="{{ sn }}">
+                <div class="system-title">{{ name }}</div>
+                <div class="battery-container">
+                    <div class="battery-level {{ data[sn] if data[sn] is not none else 'N/A' >= 50 and 'color-success' or data[sn] >= 20 and 'color-warning' or 'color-danger' }}">{{ data[sn] if data[sn] is not none else 'N/A' }}%</div>
                     <div class="battery-segments">
                         {% set soc = data[sn] if data[sn] is not none else 0 %}
                         {% for i in range(10) %}
-                        <div class="segment" style="background: {{ '#4caf50' if soc >= 50 else ('#ffca28' if soc >= 20 else '#f44336') if (i * 10) < soc else '#f5f5f5' }};"></div>
+                        <div class="segment {{ '#5cb85c' if soc >= 50 else ('#f0ad4e' if soc >= 20 else '#d9534f') if (i * 10) < soc else '' }}"></div>
                         {% endfor %}
                     </div>
                 </div>
-                <p class="battery-label">{{ name }}</p>
+                <div class="timestamp-text">Оновлено: {{ time.strftime('%H:%M:%S') }}</div>
             </div>
             {% endfor %}
         </div>
