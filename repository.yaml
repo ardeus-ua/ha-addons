@@ -8,3 +8,4 @@ maintainer: Ardeus-UA
 # Ключами є імена папок, в яких знаходяться файли аддонів (slug).
 addons:
   - local_battery_viewer_tunnel
+  - gbattery
