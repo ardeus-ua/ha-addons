@@ -38,7 +38,8 @@ def update_battery_soc():
         app.logger.debug(f"Received data: {new_data}")
         for sn, soc in new_data.items():
             if sn in SENSORS:
-                data[sn] = soc
+                # Приведение значения к float, если возможно, иначе None
+                data[sn] = float(soc) if soc and soc != 'N/A' else None
         save_data(data)
         socketio.emit('update_soc', data)
         return jsonify({"status": "ok"})
@@ -198,13 +199,16 @@ def index():
                     const level = unit.querySelector('.battery-level');
                     const segments = unit.querySelector('.battery-segments');
                     level.textContent = `${soc}%`;
-                    level.className = 'battery-level ' + (soc >= 50 ? 'color-success' : (soc >= 20 ? 'color-warning' : 'color-danger'));
+                    // Приведение к числу для сравнения
+                    const socNum = (soc === 'N/A') ? -1 : parseFloat(soc);
+                    level.className = 'battery-level ' + (socNum >= 50 ? 'color-success' : (socNum >= 20 ? 'color-warning' : 'color-danger'));
                     segments.innerHTML = '';
                     for (let i = 0; i < 10; i++) {
                         const segment = document.createElement('div');
                         segment.className = 'segment';
-                        segment.classList.add(soc >= 50 ? 'color-success' : (soc >= 20 ? 'color-warning' : 'color-danger'));
-                        if ((i * 10) >= soc) segment.classList.remove('color-success', 'color-warning', 'color-danger');
+                        if (socNum >= 0 && (i * 10) < socNum) {
+                            segment.classList.add(socNum >= 50 ? 'color-success' : (socNum >= 20 ? 'color-warning' : 'color-danger'));
+                        }
                         segments.appendChild(segment);
                     }
                 });
@@ -218,11 +222,12 @@ def index():
             <div class="indicator-unit" data-sn="{{ sn }}">
                 <div class="system-title">{{ name }}</div>
                 <div class="battery-container">
-                    <div class="battery-level {{ data[sn] if data[sn] is not none else 'N/A' >= 50 and 'color-success' or data[sn] >= 20 and 'color-warning' or 'color-danger' }}">{{ data[sn] if data[sn] is not none else 'N/A' }}%</div>
+                    <div class="battery-level {% if data[sn] is not none and data[sn]|float >= 50 %}color-success{% elif data[sn] is not none and data[sn]|float >= 20 %}color-warning{% else %}color-danger{% endif %}">{{ data[sn] if data[sn] is not none else 'N/A' }}%</div>
                     <div class="battery-segments">
                         {% set soc = data[sn] if data[sn] is not none else 0 %}
+                        {% set soc_num = soc|float %}
                         {% for i in range(10) %}
-                        <div class="segment {{ '#5cb85c' if soc >= 50 else ('#f0ad4e' if soc >= 20 else '#d9534f') if (i * 10) < soc else '' }}"></div>
+                        <div class="segment {% if soc_num >= 50 and (i * 10) < soc_num %}color-success{% elif soc_num >= 20 and (i * 10) < soc_num %}color-warning{% elif (i * 10) < soc_num %}color-danger{% endif %}"></div>
                         {% endfor %}
                     </div>
                 </div>
