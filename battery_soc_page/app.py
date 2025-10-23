@@ -116,4 +116,17 @@ def index():
             <div class="battery-container">
                 <div class="battery">
                     <div class="battery-cap"></div>
-                    <div class="battery-fill" style="height: {{ data[sn] if data[sn] is not none else 0 }}%; background
+                    <div class="battery-fill" style="height: {{ data[sn] if data[sn] is not none else 0 }}%; background: {{ '#00cc00' if (data[sn] if data[sn] is not none else 0) >= 50 else ('#ffcc00' if (data[sn] if data[sn] is not none else 0) >= 20 else '#cc0000') }};"></div>
+                </div>
+                <p class="battery-label">{{ name }}</p>
+                <p class="battery-percentage">{{ data[sn] if data[sn] is not none else 'N/A' }}%</p>
+            </div>
+            {% endfor %}
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(html, sensors=SENSORS, data=data)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
